@@ -1,4 +1,5 @@
 const User = require("../models/users.model");
+import cloudinary from "../cloudinary.js";
 
 const createUser = async (req, res) => {
   try {
@@ -66,10 +67,38 @@ const getUserByEmail = async (req, res) => {
   }
 };
 
+const uploadProfilePicture = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: "No file uploaded" });
+    }
+
+    const result = await cloudinary.uploader.upload(req.file.path, {
+      folder: "profile_pictures", // Store images in a specific Cloudinary folder
+    });
+
+    // Save image URL in MongoDB
+    const updatedUser = await User.findByIdAndUpdate(
+      req.body.userId,
+      { profilePicture: result.secure_url },
+      { new: true }
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    res.json({ message: "Image uploaded successfully", user: updatedUser });
+  } catch (error) {
+    console.error("Image upload error:", error);
+    res.status(500).json({ error: "Image upload failed" });
+  }
+};
 module.exports = {
   createUser,
   getUser,
   getUsers,
   getUserById,
   getUserByEmail,
+  uploadProfilePicture,
 };
