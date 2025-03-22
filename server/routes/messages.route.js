@@ -4,9 +4,11 @@ const {
   getMessages,
   deleteMessage,
   sendMessage,
+  getMessageById,
 } = require("../controllers/messages.controller");
 
 router.get("/:chatId", getMessages);
+router.get("/id/:id", getMessageById);
 router.post("/", sendMessage);
 router.delete("/:id", deleteMessage);
 
