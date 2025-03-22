@@ -1,5 +1,6 @@
 const User = require("../models/users.model");
-import cloudinary from "../cloudinary.js";
+// const cloudinary = require("../cloudinary");
+// const mongoose = require("mongoose"); // If using CommonJS
 
 const createUser = async (req, res) => {
   try {
@@ -68,19 +69,16 @@ const getUserByEmail = async (req, res) => {
 };
 
 const uploadProfilePicture = async (req, res) => {
+  const { userId, profilePic } = req.body;
+
+  if (!userId || !profilePic) {
+    return res.status(400).json({ error: "Missing userId or profilePicture" });
+  }
+
   try {
-    if (!req.file) {
-      return res.status(400).json({ error: "No file uploaded" });
-    }
-
-    const result = await cloudinary.uploader.upload(req.file.path, {
-      folder: "profile_pictures", // Store images in a specific Cloudinary folder
-    });
-
-    // Save image URL in MongoDB
     const updatedUser = await User.findByIdAndUpdate(
-      req.body.userId,
-      { profilePicture: result.secure_url },
+      userId,
+      { profilePic },
       { new: true }
     );
 
@@ -88,10 +86,10 @@ const uploadProfilePicture = async (req, res) => {
       return res.status(404).json({ error: "User not found" });
     }
 
-    res.json({ message: "Image uploaded successfully", user: updatedUser });
+    res.json({ message: "Profile picture updated", user: updatedUser });
   } catch (error) {
-    console.error("Image upload error:", error);
-    res.status(500).json({ error: "Image upload failed" });
+    console.error("Error updating profile picture:", error);
+    res.status(500).json({ error: "Server error" });
   }
 };
 module.exports = {

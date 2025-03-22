@@ -1,5 +1,7 @@
 const express = require("express");
 const router = express.Router();
+const multer = require("multer");
+
 const {
   createUser,
   getUser,
@@ -8,6 +10,9 @@ const {
   getUserByEmail,
   uploadProfilePicture,
 } = require("../controllers/users.controller");
+
+const storage = multer.memoryStorage(); // Store in memory (no file path)
+const upload = multer({ storage });
 
 // Corrected Order
 router.get("/", getUsers);
