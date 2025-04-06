@@ -18,7 +18,7 @@ app.use(express.json());
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: "https://chatty-green-six.vercel.app",
+    origin: "*",
     methods: ["GET", "POST"],
   },
 });
@@ -47,17 +47,17 @@ io.on("connection", (socket) => {
   });
 
   // User joins a chat room
-  socket.on("join_room", (data) => {
+  socket.on("join-room", (data) => {
     socket.join(data.roomId);
     console.log(
-      `${data.name} with id: ${socket.id} joined room: ${data.roomId}`
+      `${data.userId} with id: ${socket.id} joined room: ${data.roomId}`
     );
   });
 
   // Handle incoming messages
   socket.on("text", (data) => {
     console.log("Received message:", data);
-    io.to(data.room).emit("receive-text", data);
+    io.to(data.roomId).emit("receive-text", data);
   });
 
   // Handle user disconnect
